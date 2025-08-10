@@ -1,0 +1,18 @@
+{
+  "Application": {
+    "WaitKey": true
+  },
+  "Scripts": {},
+  "UniCheat": {
+    "ReadOnlyConfig": false,
+    "Scripts": {
+      "ExampleScript": {
+        "Enable": true,
+        "External": {
+          "Filename": "ExampleScript.dll",
+          "FullClassName": "ExampleScript.ExampleScript"
+        }
+      }
+    }
+  }
+}

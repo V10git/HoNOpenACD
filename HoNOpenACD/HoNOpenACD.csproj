@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<Platforms>x64</Platforms>
+		<IsPublishable>True</IsPublishable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+		<Configurations>Debug;Release;Research;PubRelease;AotRelease</Configurations>
+		<Version>1.0-alpha</Version>
+		<FileVersion>1.0-alpha</FileVersion>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<NoWarn>7035</NoWarn>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<Trimming>none</Trimming>
+		<DebugType>full</DebugType>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Research|x64'">
+		<Trimming>none</Trimming>
+		<DebugType>full</DebugType>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<Trimming>none</Trimming>
+	    <DebugType>none</DebugType>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PubRelease|x64'">
+		<DebugType>none</DebugType>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+		<Trimming>none</Trimming>
+		<IsTrimmable>false</IsTrimmable>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='AotRelease|x64'">
+		<PublishAot>true</PublishAot>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>full</TrimMode>
+		<Trimming>full</Trimming>
+		<IsTrimmable>true</IsTrimmable>
+		<DebugType>none</DebugType>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(JsonSerializerIsReflectionEnabledByDefault)'=='false' Or '$(JsonSerializerIsReflectionEnabledByDefault)'==''">
+		<DefineConstants>$(DefineConstants);JSON_SOURCE_GENERATION</DefineConstants>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Using Remove="System.Threading.Tasks" />
+		<Using Remove="System.Net.Http" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\UniCheatNET\UniCheatNET.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup Condition="'$(Configuration)' != 'Research'">
+		<Compile Remove="Scripts\Research.cs" />
+		<None Include="Scripts\Research.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Iced" Version="1.21.0" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.1" />
+	</ItemGroup>
+</Project>

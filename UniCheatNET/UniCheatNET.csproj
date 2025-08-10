@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<RootNamespace>UniCheat</RootNamespace>
+		<PlatformTarget>x64</PlatformTarget>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<IsPublishable>true</IsPublishable>
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+		<_EnableConsumingManagedCodeFromNativeHosting>true</_EnableConsumingManagedCodeFromNativeHosting>
+		<Platforms>x64</Platforms>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<IsTrimmable>false</IsTrimmable>
+		<Configurations>Debug;Release</Configurations>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Using Remove="System.Threading.Tasks" />
+		<Using Remove="System.Net.Http" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Iced" Version="1.21.0" />
+		<PackageReference Include="TerraFX.Interop.Windows" Version="10.0.26100.1" />
+  </ItemGroup>
+</Project>
