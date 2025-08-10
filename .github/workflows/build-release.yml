@@ -1,0 +1,67 @@
+# This workflow build .NET Core application for release.
+
+name: BuildRelease
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    
+    env:
+      ApplicationExecutable: HoNOpenACD.exe
+      SolutionFilename: UniCheatNET.sln
+      PublishZipFilename: HoNOpenACD-${{ github.event.release.tag_name }}.zip
+      BuildBinDir: ${{ github.workspace }}\bin
+      PublishXml: .github\release.pubxml
+      Configuration: PubRelease
+      
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Install the .NET Core workload
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Make correct version string
+      run: |
+        echo("VersionPrefix=" + "${{ github.event.release.tag_name }}".remove(0,1).split("-")[0]) | Out-file -Append $env:GITHUB_ENV
+        echo("VersionSuffix=" + "${{ github.event.release.tag_name }}".split("-")[1]) | Out-file -Append $env:GITHUB_ENV
+
+    - name: Build the application
+      run: dotnet publish $env:SolutionFilename /p:VersionPrefix=$env:VersionPrefix /p:VersionSuffix=$env:VersionSuffix /p:PublishProfileFullPath=$env:GITHUB_WORKSPACE\$env:PublishXml /p:PublishProfile=$env:PublishXml /p:PublishProfileRootFolder=$env:GITHUB_WORKSPACE
+
+    - name: Upload the artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-${{env.PublishZipFilename}}
+        path: |
+          ${{env.BuildBinDir}}\${{env.Configuration}}
+          ${{env.BuildBinDir}}\publish
+        if-no-files-found: error
+
+    - name: Prepare and zip files for deployment
+      run: |
+        mkdir ${{env.BuildBinDir}}\deploy | Out-Null
+        copy ${{env.BuildBinDir}}\publish\${{env.ApplicationExecutable}} ${{env.BuildBinDir}}\deploy
+        copy ${{github.workspace}}\LICENSE ${{env.BuildBinDir}}\deploy\license.txt
+        Compress-Archive ${{env.BuildBinDir}}\deploy/* ${{ github.workspace }}\${{env.PublishZipFilename}}
+        
+    - name: Upload binaries to release
+      uses: softprops/action-gh-release@v1
+      with:
+          files: ${{env.PublishZipFilename}}
+
