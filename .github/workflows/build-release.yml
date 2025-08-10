@@ -14,11 +14,14 @@ jobs:
     
     env:
       ApplicationExecutable: HoNOpenACD.exe
-      SolutionFilename: UniCheatNET.sln
-      PublishZipFilename: HoNOpenACD-${{ github.event.release.tag_name }}.zip
+      SolutionFilename: HoNOpenACD\HoNOpenACD.csproj
+      PublishZipFilename: HoNOpenACD-${{ github.event.release.tag_name }}
       BuildBinDir: ${{ github.workspace }}\bin
-      PublishXml: .github\release.pubxml
+      PublishXml: release.pubxml
       Configuration: PubRelease
+
+    permissions:
+      contents: write # Grant write permission for contents
       
     steps:
     - name: Checkout
@@ -42,7 +45,7 @@ jobs:
         echo("VersionSuffix=" + "${{ github.event.release.tag_name }}".split("-")[1]) | Out-file -Append $env:GITHUB_ENV
 
     - name: Build the application
-      run: dotnet publish $env:SolutionFilename /p:VersionPrefix=$env:VersionPrefix /p:VersionSuffix=$env:VersionSuffix /p:PublishProfileFullPath=$env:GITHUB_WORKSPACE\$env:PublishXml /p:PublishProfile=$env:PublishXml /p:PublishProfileRootFolder=$env:GITHUB_WORKSPACE
+      run: dotnet publish $env:SolutionFilename /p:VersionPrefix=$env:VersionPrefix /p:VersionSuffix=$env:VersionSuffix /p:PublishProfileFullPath=$env:GITHUB_WORKSPACE\.github\$env:PublishXml /p:PublishProfile=$env:PublishXml /p:PublishProfileRootFolder=$env:GITHUB_WORKSPACE\.github
 
     - name: Upload the artifacts
       uses: actions/upload-artifact@v4
