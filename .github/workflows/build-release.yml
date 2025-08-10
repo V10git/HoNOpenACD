@@ -15,7 +15,7 @@ jobs:
     env:
       ApplicationExecutable: HoNOpenACD.exe
       SolutionFilename: HoNOpenACD\HoNOpenACD.csproj
-      PublishZipFilename: HoNOpenACD-${{ github.event.release.tag_name }}
+      PublishZipFilename: HoNOpenACD-${{ github.event.release.tag_name }}.zip
       BuildBinDir: ${{ github.workspace }}\bin
       PublishXml: release.pubxml
       Configuration: PubRelease
