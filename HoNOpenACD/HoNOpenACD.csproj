@@ -66,6 +66,8 @@
 	
 	<ItemGroup>
 		<ProjectReference Include="..\UniCheatNET\UniCheatNET.csproj" />
+		<TrimmerRootAssembly Include="UniCheatNET" />
+		<TrimmerRootAssembly Include="Iced" />
 	</ItemGroup>
 	
 	<ItemGroup Condition="'$(Configuration)' != 'Research'">
