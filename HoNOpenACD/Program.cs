@@ -70,7 +70,7 @@ public static class Program
 
             // Wait for user input if configured
             if (AppConfig.WaitKey)
-                WaitAnyKey(DrawHeader, 2000);
+                WaitAnyKey(DrawHeader, 10000);
         }
     }
 

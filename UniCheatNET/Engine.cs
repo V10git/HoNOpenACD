@@ -269,10 +269,24 @@ public sealed class Engine
     {
         if (ProcessHelpers.TryGetProcess(_processName, out _process))
         {
+            var ret = true;
             if (waitInit)
-                _process!.WaitForInputIdle(waitInitTimeout);
-            AnsiPrint(@Good, $"Process {@Name(_processName)} found ( {@Id(_process!.Id)} )");
-            return true;
+                if (!_process!.WaitForInputIdle(waitInitTimeout))
+                {
+                    AnsiPrint(@Warning, $"Process {@Name(_processName)} PID {@Id(_process!.Id)} is stuck. Terminate it or restart PC.");
+                    if (Config.UC.AutoCloseStuckProcesses)
+                    {
+                        ret = false;
+                        _process.Kill();
+                        Thread.Sleep(100);
+                        AnsiPrint(@Warning, $"Process {@Name(_processName)} PID {@Id(_process!.Id)} killed.");
+                    }
+                }
+            if (ret)
+            {
+                AnsiPrint(@Good, $"Process {@Name(_processName)} found ( {@Id(_process!.Id)} )");
+                return true;
+            }
         }
 
         Console.Write($"Waiting for process {@Name(_processName + ".exe")}...");

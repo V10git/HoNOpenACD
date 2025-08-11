@@ -24,6 +24,7 @@ public static class Config
             public CExternal? External { get; set; } = null;
         }
 
+        public bool AutoCloseStuckProcesses { get; set; } = true;
         public bool AllowExternalScripts { get; set; } = false;
         public bool ReadOnlyConfig { get; set; } = false;
         public Dictionary<string, Script> Scripts { get; set; } = new Dictionary<string, Script>();
