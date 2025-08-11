@@ -144,6 +144,7 @@ internal unsafe class CameraDistance : BaseScript
         var baseptr = Process.Alloc<byte>(MIN_CODE_SIZE);
         var compiled = asm.Compile(baseptr);
         Process.WriteMemory((void*)baseptr, compiled);
+        Console.WriteLine($"ACD injected at {@Id()}0x{baseptr:X}{@RST}");
 
         Process.ApplyPatch((void*)orgZoomOut,     a => { a.jmp(compiled[lbZoomOut]);     });
         Process.ApplyPatch((void*)orgZoomIn,      a => { a.jmp(compiled[lbZoomIn]);      });

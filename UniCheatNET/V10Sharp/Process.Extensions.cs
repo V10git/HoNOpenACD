@@ -175,7 +175,7 @@ public static class Extensions
     {
         var asm = new Assembler(64);
         generator(asm);
-        WriteMemory(process, address, asm.Compile(), true);
+        WriteMemory(process, address, asm.Compile((nint)address), true);
     }
 
     public static unsafe CompiledResult Execute(this Process process, Action<Assembler> generator)

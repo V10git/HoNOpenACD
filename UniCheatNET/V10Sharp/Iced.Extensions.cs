@@ -168,7 +168,7 @@ public static class Extensions
 
         using MemoryStream ms = new MemoryStream();
         return new CompiledResult {
-            Result = asm.Assemble(new StreamCodeWriter(ms), (uint)rip, BlockEncoderOptions.ReturnNewInstructionOffsets | BlockEncoderOptions.ReturnRelocInfos),
+            Result = asm.Assemble(new StreamCodeWriter(ms), (ulong)rip, BlockEncoderOptions.ReturnNewInstructionOffsets | BlockEncoderOptions.ReturnRelocInfos),
             Bytes = ms.ToArray(),
             Labels = ls
         };

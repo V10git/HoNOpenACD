@@ -11,7 +11,7 @@ public class ExampleScript : BaseScript
 
     protected override bool Inject()
     {
-        //Console.WriteLine("Hello World! [ from ExampleScript ]");
+        Console.WriteLine("Hello World! [ from ExampleScript ]");
         return true;
     }
 }

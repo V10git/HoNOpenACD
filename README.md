@@ -1,6 +1,7 @@
 # HoN Open ACD
+![Screenshot](assets/screenshot.png)
 
-This is open source **UniCheat.NET** based x64 application for modify **Heroes of Newerth** x64 gameplay.  
+This is open source **UniCheat.NET** based x64 application for modify **Heroes of Newerth** gameplay.  
 
 Current features:
  - Control player camera distance
@@ -8,7 +9,7 @@ Current features:
 ### Download binary releases
 https://github.com/V10git/HoNOpenACD/releases
 
-Closed source full featured version **HoN ACD** can be downloaded from official page https://v10.name/acd/
+Closed source, full featured version **HoN ACD** can be downloaded from official page https://v10.name/acd/
 
 ### Build
 `git clone https://github.com/V10git/HoNOpenACD.git`  
