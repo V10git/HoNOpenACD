@@ -15,7 +15,7 @@ namespace HoNOpenACD;
 
 public static class Program
 {
-    private const string header = @"
+    private const string HEADER = @"
  _   _                                   __   _   _                        _   _     
 | | | | ___ _ __ ___   ___  ___    ___  / _| | \ | | _____      _____ _ __| |_| |__  
 | |_| |/ _ \ '__/ _ \ / _ \/ __|  / _ \| |_  |  \| |/ _ \ \ /\ / / _ \ '__| __| '_ \ 
@@ -28,6 +28,7 @@ public static class Program
 | |_| | |_) |  __/ | | | \__ \ (_) | |_| | | | (_|  __/  / ___ \ |___| |_| |
  \___/| .__/ \___|_| |_| |___/\___/ \__,_|_|  \___\___| /_/   \_\____|____/ 
       |_|";
+    private const ushort VERSION_MAX_LEN = 20;
 
 
     public static void Main(string[] args)
@@ -77,22 +78,24 @@ public static class Program
     {
         public bool WaitKey { get; set; } = true;
     }
-    internal static ApplicationConfig AppConfig => (ApplicationConfig)Config.App;
 
-    private static string Version =>
-        Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-
+    public static ApplicationConfig AppConfig => (ApplicationConfig)Config.App;
+    public static string Version
+    {
+        get
+        {
+            var a = Assembly.GetExecutingAssembly();
+            var vStr = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+            return string.IsNullOrEmpty(vStr)
+                ? string.Empty
+                : vStr.Substring(0, Math.Min(VERSION_MAX_LEN, vStr.Length));
+        }
+    }
     private static readonly Random random = new Random();
     private static ValueTuple<int, int>? initialCursorPos = null;
     private static readonly int[] rainbowColors = CalcRainbow();
     private static int rainbowColorIndex = 8;
-    private static string[] headerLines = header.Split("\r\n")[1..];
-
-    public static ConsoleColor GetRandomConsoleColor()
-    {
-        var consoleColors = Enum.GetValues<ConsoleColor>();
-        return (ConsoleColor)consoleColors.GetValue(random.Next(1, consoleColors.Length))!;
-    }
+    private static string[] headerLines = HEADER.Split("\r\n")[1..];
 
     private static bool DrawHeader()
     {
@@ -127,7 +130,13 @@ public static class Program
         return true;
     }
 
-    private static bool Animate()
+    private static ConsoleColor GetRandomConsoleColor()
+    {
+        var consoleColors = Enum.GetValues<ConsoleColor>();
+        return (ConsoleColor)consoleColors.GetValue(random.Next(1, consoleColors.Length))!;
+    }
+
+    public static bool Animate()
     {
         Console.ForegroundColor = GetRandomConsoleColor();
 
