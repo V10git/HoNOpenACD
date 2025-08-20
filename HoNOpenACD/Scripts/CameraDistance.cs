@@ -103,10 +103,12 @@ internal unsafe class CameraDistance : BaseScript
         asm.ret();
         V10Sharp.Helpers.Repeat(asm.int3, 4);
 
-        //New SetupCamera()
+        // New SetupCamera()
         asm.LabelHere(out var SCReturnToCaller);
         asm.dq(0);
         asm.LabelHere(out var BackupRenderCameraDistance);
+        asm.dq(0);
+        asm.LabelHere(out var BackupCPlayer);
         asm.dq(0);
         V10Sharp.Helpers.Repeat(asm.int3, 4);
 
@@ -121,6 +123,8 @@ internal unsafe class CameraDistance : BaseScript
         asm.pop(__qword_ptr[SCReturnToCaller]);
         asm.push(__qword_ptr[rcx + OFFSETS.CPlayer.fRenderCameraDistance]);
         asm.pop(__qword_ptr[BackupRenderCameraDistance]);
+        asm.push(rcx);
+        asm.pop(__qword_ptr[BackupCPlayer]);
 
         // replace camera distance
         asm.push(__qword_ptr[fActualCameraDistance]);
@@ -130,7 +134,8 @@ internal unsafe class CameraDistance : BaseScript
         asm.call((ulong)orgSetupCamera + 0x13);
 
         // restore stack
-        asm.mov(rcx, __qword_ptr[rsi + 0x580]);
+        asm.push(__qword_ptr[BackupCPlayer]);
+        asm.pop(rcx);
         asm.push(__qword_ptr[BackupRenderCameraDistance]);
         asm.pop(__qword_ptr[rcx + OFFSETS.CPlayer.fRenderCameraDistance]);
         asm.push(__qword_ptr[SCReturnToCaller]);
@@ -144,12 +149,30 @@ internal unsafe class CameraDistance : BaseScript
         var baseptr = Process.Alloc<byte>(MIN_CODE_SIZE);
         var compiled = asm.Compile(baseptr);
         Process.WriteMemory((void*)baseptr, compiled);
-        Console.WriteLine($"ACD injected at {@Id()}0x{baseptr:X}{@RST}");
+        AnsiPrint(@Good, $"{Name} injected at {@Id(baseptr)}");
 
         Process.ApplyPatch((void*)orgZoomOut,     a => { a.jmp(compiled[lbZoomOut]);     });
         Process.ApplyPatch((void*)orgZoomIn,      a => { a.jmp(compiled[lbZoomIn]);      });
         Process.ApplyPatch((void*)orgSetupCamera, a => { a.jmp(compiled[lbSetupCamera]); });
 
+        // fix kongor patch of GetRegionAlphaFlowmap
+        var pGetRegionAlphaFlowmap = Process.GetModuleExport(EXPORTS.K2_DLL, EXPORTS.K2.CWaterMap__GetRegionAlphaFlowmap);
+        if (pGetRegionAlphaFlowmap != IntPtr.Zero)
+        {
+            Process.ApplyPatch((void*)(pGetRegionAlphaFlowmap + 0xE92A), a =>
+            {
+                a.db([0x76, 0x1D, 0x48, 0x8B, 0x84, 0x24, 0xA0, 0x62, 0x00, 0x00, 0x6B, 
+                      0x80, 0xE0, 0x00, 0x00, 0x00, 0xFF, 0x48, 0x8B, 0x8C, 0x24, 0xA0, 
+                      0x62, 0x00, 0x00, 0x89, 0x81, 0xE0, 0x00, 0x00, 0x00]);
+            });
+        }
+        else
+        {
+            Engine.ShowError($"{@Id("GetRegionAlphaFlowmap")} patch failed.");
+            return false;
+        }
+
+        // execute command in console
         if (!string.IsNullOrEmpty(Config.ExecuteAfterInject))
         {
             var g_pConsole = Process.GetModuleExport(EXPORTS.K2_DLL, EXPORTS.K2.g_pConsole);

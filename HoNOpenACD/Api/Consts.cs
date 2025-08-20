@@ -20,6 +20,7 @@ internal static class Consts
         {
             internal const string g_pConsole = "?g_pConsole@@3PEAVCConsole@@EA";
             internal const string CConsole__Execute = "?Execute@CConsole@@QEAAXAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$K2StringAllocator@_W@@@std@@I@Z";
+            internal const string CWaterMap__GetRegionAlphaFlowmap = "?GetRegionAlphaFlowmap@CWaterMap@@QEBA_NHHHHPEAV?$CVec4@E@@H@Z";
         }
     }
 
