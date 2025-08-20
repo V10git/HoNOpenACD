@@ -208,7 +208,7 @@ public static class Extensions
     {
         var result = asm.CreateLabel();
         asm.Label(ref result);
-        asm.dd(value);
+        asm.dq(value);
         return result;
     }
 
