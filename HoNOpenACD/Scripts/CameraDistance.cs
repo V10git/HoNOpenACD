@@ -155,6 +155,7 @@ internal unsafe class CameraDistance : BaseScript
         Process.ApplyPatch((void*)orgZoomIn,      a => { a.jmp(compiled[lbZoomIn]);      });
         Process.ApplyPatch((void*)orgSetupCamera, a => { a.jmp(compiled[lbSetupCamera]); });
 
+#if !BUILD_REBORN
         // fix kongor patch of GetRegionAlphaFlowmap
         var pGetRegionAlphaFlowmap = Process.GetModuleExport(EXPORTS.K2_DLL, EXPORTS.K2.CWaterMap__GetRegionAlphaFlowmap);
         if (pGetRegionAlphaFlowmap != IntPtr.Zero)
@@ -171,6 +172,7 @@ internal unsafe class CameraDistance : BaseScript
             Engine.ShowError($"{@Id("GetRegionAlphaFlowmap")} patch failed.");
             return false;
         }
+#endif
 
         // execute command in console
         if (!string.IsNullOrEmpty(Config.ExecuteAfterInject))

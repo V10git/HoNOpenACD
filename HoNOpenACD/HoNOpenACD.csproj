@@ -17,6 +17,7 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<NoWarn>7035</NoWarn>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<!--		<DefineConstants>$(DefineConstants);BUILD_REBORN</DefineConstants> -->
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

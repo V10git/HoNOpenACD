@@ -2,12 +2,20 @@
 
 internal static class Consts
 {
+#if BUILD_REBORN
+    internal const string PROCESS_NAME = "juvio";
+#else
     internal const string PROCESS_NAME = "hon";
+#endif
     internal static readonly string[] REQUIRED_MODULES = { EXPORTS.K2_DLL, EXPORTS.GS_DLL };
 
     internal static class EXPORTS
     {
+#if BUILD_REBORN
+        internal const string GS_DLL = "shared.dll";
+#else
         internal const string GS_DLL = "game_shared_x64.dll";
+#endif
         internal static class GS
         {
             internal const string CPlayer__ZoomIn = "?ZoomIn@CPlayer@@QEAAXXZ";
@@ -15,7 +23,11 @@ internal static class Consts
             internal const string CPlayer__SetupCamera = "?SetupCamera@CPlayer@@QEAAXAEAVCCamera@@AEBV?$CVec3@M@@1@Z";
         }
 
+#if BUILD_REBORN
+        internal const string K2_DLL = "k2.dll";
+#else
         internal const string K2_DLL = "k2_x64.dll";
+#endif
         internal static class K2
         {
             internal const string g_pConsole = "?g_pConsole@@3PEAVCConsole@@EA";
