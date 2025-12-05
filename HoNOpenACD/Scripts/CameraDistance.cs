@@ -110,6 +110,12 @@ internal unsafe class CameraDistance : BaseScript
         asm.dq(0);
         asm.LabelHere(out var BackupCPlayer);
         asm.dq(0);
+#if BUILD_REBORN
+        // temp fix clipping in reborn
+        // TODO: make it better
+        asm.LabelHere(out var BackupCamAspect);
+        asm.dq(0);
+#endif
         V10Sharp.Helpers.Repeat(asm.int3, 4);
 
         lbSetupCamera = asm.Func();
@@ -130,8 +136,65 @@ internal unsafe class CameraDistance : BaseScript
         asm.push(__qword_ptr[fActualCameraDistance]);
         asm.pop(__qword_ptr[rcx + OFFSETS.CPlayer.fRenderCameraDistance]);
 
+#if BUILD_REBORN
+        // temp fix clipping in reborn
+        // TODO: make it better
+
+        // replace g_camAspect value for high distance
+        if (Config.MaxCameraDistance >= 3400)
+        {
+            var CV_g_camAspect = new HoN_CVar<float>(Process, EXPORTS.GS_DLL, "g_camAspect");
+            if (CV_g_camAspect.IsValid)
+            {
+                // backup rax tmp
+                asm.push(rax);
+
+                // backup camAspect value
+                asm.mov(rax, CV_g_camAspect.ValuePtr);
+                asm.push(__qword_ptr[rax]);
+                asm.pop(__qword_ptr[BackupCamAspect]);
+
+                // replace camAspect value
+                asm.push(0x3F000000); // 0x3F000000 is binary 0.5f repr
+                asm.pop(__qword_ptr[rax]);
+
+                // restore rax tmp
+                asm.pop(rax);
+                AnsiPrint(@Good, $"camAspect patch applied, cvar ptr {@Id(CV_g_camAspect.ValuePtr)}");
+            }
+            else
+            {
+                AnsiPrint(@Warning("camAspect patch failed: cvar ptr is zero"));
+            }
+        }
+#endif
+
         // call to original func
         asm.call((ulong)orgSetupCamera + 0x13);
+
+#if BUILD_REBORN
+        // temp fix clipping in reborn
+        // TODO: make it better
+
+        // restore g_camAspect value
+        if (Config.MaxCameraDistance >= 3400)
+        {
+            var CV_g_camAspect = new HoN_CVar<float>(Process, EXPORTS.GS_DLL, "g_camAspect");
+            if (CV_g_camAspect.IsValid)
+            {
+                // backup rax tmp
+                asm.push(rax);
+
+                //restore
+                asm.mov(rax, CV_g_camAspect.ValuePtr);
+                asm.push(__qword_ptr[BackupCamAspect]);
+                asm.pop(__qword_ptr[rax]);
+
+                // restore rax tmp
+                asm.pop(rax);
+            }
+        }
+#endif
 
         // restore stack
         asm.push(__qword_ptr[BackupCPlayer]);
@@ -141,6 +204,7 @@ internal unsafe class CameraDistance : BaseScript
         asm.push(__qword_ptr[SCReturnToCaller]);
         asm.ret();
         V10Sharp.Helpers.Repeat(asm.int3, 4);
+        // End New SetupCamera()
         // End Asm
     }
 
@@ -172,6 +236,14 @@ internal unsafe class CameraDistance : BaseScript
             Engine.ShowError($"{@Id("GetRegionAlphaFlowmap")} patch failed.");
             return false;
         }
+#else
+        // temp fix clipping in reborn by cvar - can be logged and shown on demo record
+        // disabled
+        //if (Config.MaxCameraDistance > 3600)
+        //{
+        //    var CV_g_camAspect = new HoN_CVar<float>(Process, EXPORTS.GS_DLL, "g_camAspect");
+        //    CV_g_camAspect.Value = 0.7f;
+        //}
 #endif
 
         // execute command in console

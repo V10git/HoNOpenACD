@@ -55,7 +55,7 @@ public static class Program
         if (engine.WaitProcess(Animate) && engine.WaitModules(Consts.REQUIRED_MODULES, out var tmp, Animate))
             engine.RunScripts(Animate);
 
-        // Wait for user input if any error happened
+        // Waiting for user input if any error occurs
         if (AnyError)
         {
             // Show additional hint without admin rights
