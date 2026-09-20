@@ -15,12 +15,16 @@ internal unsafe class CameraDistance : BaseScript
 {
     private const int MIN_CODE_SIZE = 512;
     private const float DEFAULT_MIN_CAMERA_DISTANCE = 600f;
+#if BUILD_REBORN
+    private const float DEFAULT_MAX_CAMERA_DISTANCE = 3300f;
+#else
     private const float DEFAULT_MAX_CAMERA_DISTANCE = 2100f;
+#endif
     private const float CAMERA_DISTANCE_CHANGE_STEP = 180f;
 
     public new class ScriptConfig
     {
-        public float MaxCameraDistance { get; set; } = 3000f;
+        public float MaxCameraDistance { get; set; } = 3400f;
         public string ExecuteAfterInject { get; set; } = "echo ^009ACD ^900Loaded";
     }
 
@@ -42,6 +46,7 @@ internal unsafe class CameraDistance : BaseScript
             Engine.ShowError($"Camera distance in config {@Value(Config.MaxCameraDistance)} lower than default {@Good(DEFAULT_MAX_CAMERA_DISTANCE)}");
             return false;
         }
+        // TODO: Check default cam distance is valid in game
 
         if (!WaitModule(EXPORTS.GS_DLL, out var gsDll, waiter, true))
             return false;

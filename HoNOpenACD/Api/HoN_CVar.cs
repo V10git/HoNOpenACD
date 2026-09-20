@@ -6,7 +6,11 @@ namespace HoNOpenACD
 {
     public class HoN_CVar<T> where T : unmanaged
     {
+#if BUILD_REBORN
+        const ushort VALUES_OFFSET = 0xE8;
+#else
         const ushort VALUES_OFFSET = 0x1D0;
+#endif
 
         private Process Process;
         public IntPtr Ptr { get; private set; } = IntPtr.Zero;
@@ -27,13 +31,14 @@ namespace HoNOpenACD
         public T Value { 
             get
             {
-                if (!IsValid || !Process.ReadMemory<T>(Ptr + 0x8, out var value))
+                if (!IsValid || !Process.ReadMemory<T>(ValuePtr, out var value))
                     return default;
                 return value;
             }
             set
             {
                 if (!IsValid) return;
+
                 Process.WriteMemory(DefaultValuePtr, value);
                 Process.WriteMemory(ValuePtr, value);
                 // unknown value copy

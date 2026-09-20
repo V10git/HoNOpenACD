@@ -4,14 +4,14 @@ name: Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
     paths-ignore:
       - '.github/**'
       - 'docs/**'
       - 'README.md'
       - 'LICENSE'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
   
 jobs:

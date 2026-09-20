@@ -11,9 +11,13 @@ https://github.com/V10git/HoNOpenACD/releases
 
 Closed source, full featured version **HoN ACD** can be downloaded from official page https://v10.name/acd/
 
-### Build
+### Build for legacy HoN
 `git clone https://github.com/V10git/HoNOpenACD.git`  
 `dotnet build -c Release HoNOpenACD\HoNOpenACD.csproj`
+
+### Build for Reborn
+`git clone https://github.com/V10git/HoNOpenACD.git`  
+`dotnet build -c Release HoNOpenACD\HoNOpenACD.csproj /p:DefineConstants="BUILD_REBORN"`
 
 ### Custom HoN scripts
 For create custom script, look [example script](ExampleScript/).\
