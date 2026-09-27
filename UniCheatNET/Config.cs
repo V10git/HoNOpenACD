@@ -65,8 +65,16 @@ public static class Config
     private static T GetProp<T>(string prop) => 
         (T)activeType.GetProperty(prop)!.GetValue(Active)!;
 
+
     [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026")]
-    public static void Read()
+    public static void Load()
+    {
+        string json = FileReader(Filename);
+        Active = JsonSerializer.Deserialize(json, activeType, SerializerOptions)!;
+    }
+
+    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026")]
+    public static void Save()
     {
         if (UC.ReadOnlyConfig)
         {
@@ -82,12 +90,5 @@ public static class Config
         {
             Engine.ShowError($"Cant save config to {Ansi.@Name(Filename)}\n{@Ansi.@Except(e)}");
         }
-    }
-
-    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026")]
-    public static void Write()
-    {
-        string json = FileReader(Filename);
-        Active = JsonSerializer.Deserialize(json, activeType, SerializerOptions)!;
     }
 }

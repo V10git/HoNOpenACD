@@ -60,7 +60,7 @@ public partial class PatternScanner
 
     public IntPtr FindPattern(IntPtr startAddress, long size, byte[] cbPattern, string szMask)
     {
-        IntPtr result = IntPtr.Zero;
+        long result = -1;
         if (_memCache != null)
         {
             foreach ((var modBase, var memory) in _memCache)
@@ -72,7 +72,7 @@ public partial class PatternScanner
                         result = FindPattern(_memCache[modBase], cbPattern, szMask);
                     else
                         result = FindPattern(_memCache[modBase][(Index)offset..], cbPattern, szMask);
-                    return result == IntPtr.Zero ? result : modBase + offset + result;
+                    return result == -1 ? IntPtr.Zero : modBase + offset + (IntPtr)result;
                 }
             }
 
@@ -92,7 +92,7 @@ public partial class PatternScanner
                             result = FindPattern(_memCache[module.BaseAddress], cbPattern, szMask);
                         else
                             result = FindPattern(_memCache[module.BaseAddress][(Index)offset..], cbPattern, szMask);
-                        return result == IntPtr.Zero ? result : module.BaseAddress + offset + result;
+                        return result == -1 ? IntPtr.Zero : module.BaseAddress + offset + (IntPtr)result;
                     }
                 }
             }
@@ -104,7 +104,7 @@ public partial class PatternScanner
         if (_memCache != null)
             _memCache[startAddress] = mem;
         result = FindPattern(mem, cbPattern, szMask);
-        return result == IntPtr.Zero ? result : startAddress + result;
+        return result == -1 ? IntPtr.Zero : startAddress + (IntPtr)result;
     }
 
     public unsafe IntPtr FindPattern(void* startAddress, long size, string pattern)
@@ -139,10 +139,8 @@ public partial class PatternScanner
     public IntPtr FindPattern(ProcessModule module, byte[] cbPattern, string szMask) =>
         FindPattern(module.BaseAddress, module.ModuleMemorySize, cbPattern, szMask);
 
-    private IntPtr FindPattern(byte[] cbMemory, byte[] cbPattern, string szMask)
-    {
-        return (IntPtr)PatternScanLazySIMD.FindPattern(cbMemory, cbPattern, szMask);
-    }
+    private long FindPattern(byte[] cbMemory, byte[] cbPattern, string szMask) => 
+         PatternScanLazySIMD.FindPattern(cbMemory, cbPattern, szMask);
 
     public MemCache? GetCache() => _memCache;
 

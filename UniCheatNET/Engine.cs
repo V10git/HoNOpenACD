@@ -6,6 +6,7 @@ using V10Sharp.ExtJson;
 using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 
+
 namespace UniCheat;
 
 public sealed class Engine
@@ -14,7 +15,7 @@ public sealed class Engine
     public class FatalError(string? message) : Exception(message);
 
     //TODO: public static string Version => typeof(Engine).GetAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-    public const string Version = "1.0-alpha";
+    public const string Version = "1.0";
 
     private readonly List<BaseScript> _scripts = new List<BaseScript>();
     private readonly string _processName;
@@ -58,7 +59,7 @@ public sealed class Engine
         {
             AnsiPrint(@Warning, $"Config file {@Name(Config.Filename)} not found. Creating default config.");
             BuildDefaultConfig();
-            Config.Read();
+            Config.Save();
         }
 
         // Reading config from file
@@ -66,7 +67,7 @@ public sealed class Engine
         {
             var configFilename = Path.GetRelativePath(Path.GetDirectoryName(Environment.ProcessPath)!, Config.Filename);
             Console.WriteLine($"Reading config {@Name(configFilename)}");
-            Config.Write();
+            Config.Load();
         }
         catch (Exception e)
         {
@@ -205,7 +206,7 @@ public sealed class Engine
                 if (!Config.UC.Scripts.ContainsKey(script.Name))
                 {
                     Config.UC.AddScriptDefaults(script.Name, script.EnableByDefault);
-                    Config.Read();
+                    Config.Save();
                 }
 
                 // not enabled - skip
@@ -220,7 +221,7 @@ public sealed class Engine
                 if (!Config.Scripts.ContainsKey(script.Name))
                 {
                     Config.Scripts[script.Name] = script.BuildDefaultConfig();
-                    Config.Read();
+                    Config.Save();
                 }
 
                 try
@@ -308,6 +309,10 @@ public sealed class Engine
     public void RunScripts(Func<bool>? waiter = null!)
     {
         ArgumentNullException.ThrowIfNull(_process);
+
+        var offsetsCache = new OffsetsCache();
+        offsetsCache.Load();
+
         foreach (var script in _scripts)
         {
             // not enabled - skip
@@ -319,6 +324,7 @@ public sealed class Engine
 
             try
             {
+                script.OffsetsCache = offsetsCache;
                 script.Attach(_process);
 
                 try
@@ -367,10 +373,15 @@ public sealed class Engine
                 throw;
 #endif
             }
+
             Console.WriteLine($"Script {@Name(script.Name)} is {@Flag(script.Enabled, "enabled", "failed")}");
             if (!script.Enabled)
                 AnyError = true;
+
+            // cleanup
+            script.OffsetsCache = null!;
         }
+        offsetsCache.Save();
     }
 
     public Dll? GetModule(string name) => 

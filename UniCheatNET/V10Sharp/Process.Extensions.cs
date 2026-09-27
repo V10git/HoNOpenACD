@@ -11,6 +11,7 @@ using Iced.Intel;
 using static Iced.Intel.AssemblerRegisters;
 using V10Sharp.TerraFX;
 using V10Sharp.Iced;
+using System.Text;
 
 
 namespace V10Sharp.ExtProcess.Windows;
@@ -82,6 +83,44 @@ public static class Extensions
         finally { CloseHandle(hProcess); }
     }
 
+    public static bool ReadMemoryChars(this Process process, IntPtr address, out string result, int maxByteSize = 64)
+    {
+        result = string.Empty;
+        if (address == IntPtr.Zero || maxByteSize <= 0)
+            return false;
+
+        var bytes = new byte[maxByteSize];
+        if (!process.ReadMemory(address, bytes))
+            return false;
+
+        int zeroIndex = Array.IndexOf(bytes, (byte)0);
+        int length = zeroIndex >= 0 ? zeroIndex : bytes.Length;
+
+        result = Encoding.UTF8.GetString(bytes, 0, length);
+        return true;
+    }
+
+    public static bool ReadMemoryWChars(this Process process, IntPtr address, out string result, int maxByteSize = 128)
+    {
+        result = string.Empty;
+        if (address == IntPtr.Zero || maxByteSize < 2)
+            return false;
+
+        // round down, since 1 wchar_t = 2 bytes
+        maxByteSize &= ~1;
+
+        var bytes = new byte[maxByteSize];
+        if (!process.ReadMemory(address, bytes))
+            return false;
+
+        ReadOnlySpan<char> charSpan = MemoryMarshal.Cast<byte, char>(bytes);
+        int zeroIndex = charSpan.IndexOf('\0');
+        ReadOnlySpan<char> resultSpan = zeroIndex >= 0 ? charSpan.Slice(0, zeroIndex) : charSpan;
+
+        result = resultSpan.ToString();
+        return true;
+    }
+
     public static unsafe void WriteMemory<T>(this Process process, IntPtr address, T value, bool restoreProtect = true) where T : unmanaged
     {
         WriteMemory(process, (void*)address, (byte*)&value, sizeof(T), restoreProtect);
@@ -136,6 +175,13 @@ public static class Extensions
         {
             CloseHandle(hProcess);
         }
+    }
+
+    public static IntPtr CalcPtrFromRelative(this Process process, IntPtr ptr, int cmdSize = 3)
+    {
+        if (!process.ReadMemory<int>(ptr + cmdSize, out var strRelOffset))
+            return IntPtr.Zero;
+        return ptr + cmdSize + strRelOffset + 4; // 4 offset size
     }
 
     public static unsafe int RunThread(this Process process, IntPtr address, void* parameter = null)

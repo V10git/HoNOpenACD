@@ -47,6 +47,9 @@ public class BaseScript
     /// <value>The attached process.</value>
     protected Process Process { get; private set; } = null!;
 
+    /// <summary>Offsets cache storage.</summary>
+    public OffsetsCache OffsetsCache = new();
+
     /// <summary>The script configuration.</summary>
     protected object Config = null!;
 
